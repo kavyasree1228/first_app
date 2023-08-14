@@ -6,24 +6,35 @@ class CharacterService {
   final String baseUrl;
 
   CharacterService(this.baseUrl);
-
   Future<List<Character>> fetchCharacters() async {
-    final response = await http.get(Uri.parse('$baseUrl'));
+    final response = await http.get(Uri.parse(baseUrl));
 
     if (response.statusCode == 200) {
-      print('this is char file');
       final jsonData = json.decode(response.body);
-      final characters = (jsonData['results'] as List)
-          .map((characterData) => Character(
-                name: characterData['Name'],
-                description: characterData['Description'],
-                image: characterData['Icon'],
-              ))
-          .toList();
+
+      final relatedTopics = jsonData['RelatedTopics'] as List;
+      final characters = relatedTopics.map((topic) {
+        return Character(
+          name: _stripHtmlTags(topic['Result']),
+          description: '', // You can set description as needed
+          image: _extractImageUrl(topic['Icon']['URL']),
+        );
+      }).toList();
+
       return characters;
     } else {
-      print('--------------------Failed to load characters');
       throw Exception('Failed to load characters');
     }
+  }
+
+// Helper method to strip HTML tags from a string
+  String _stripHtmlTags(String htmlString) {
+    final regex = RegExp(r'<[^>]*>');
+    return htmlString.replaceAll(regex, '');
+  }
+
+// Helper method to extract the image URL from the API response
+  String _extractImageUrl(String url) {
+    return 'https://duckduckgo.com$url';
   }
 }
