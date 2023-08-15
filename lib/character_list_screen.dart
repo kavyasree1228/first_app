@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'character.dart';
 import 'character_detail_screen.dart';
 import 'character_service.dart';
+import 'character_search_bar.dart'; // Import the new widget
 
 class CharacterListScreen extends StatefulWidget {
   final CharacterService characterService;
+  final String packageName;
 
-  const CharacterListScreen(
-      {required this.characterService, required String packageName});
+  const CharacterListScreen({
+    required this.characterService,
+    required this.packageName,
+  });
 
   @override
   _CharacterListScreenState createState() => _CharacterListScreenState();
@@ -15,62 +19,75 @@ class CharacterListScreen extends StatefulWidget {
 
 class _CharacterListScreenState extends State<CharacterListScreen> {
   late Future<List<Character>> _characterListFuture;
+  List<Character> _filteredCharacters = []; // New list for filtered characters
 
   @override
   void initState() {
     super.initState();
     _characterListFuture = widget.characterService.fetchCharacters();
-    // Print the API response
-    _characterListFuture.then((characters) {
-      print('API Response: $characters');
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Character Viewer'),
+        title: const Text('Character List'),
       ),
-      body: FutureBuilder<List<Character>>(
-        future: _characterListFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            final characters = snapshot.data!;
-            return ListView.separated(
-              itemCount: characters.length,
-              separatorBuilder: (context, index) => const Divider(),
-              itemBuilder: (context, index) {
-                final character = characters[index];
-                return ListTile(
-                  title: Text(character.name),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            CharacterDetailScreen(character: character),
-                      ),
-                    );
-                  },
-                );
+      body: Column(
+        children: [
+          CharacterSearchBar(
+            onTextChanged: (value) async {
+              final characters = await _characterListFuture;
+              setState(() {
+                _filteredCharacters = characters
+                    .where((character) => character.name
+                        .toLowerCase()
+                        .contains(value.toLowerCase()))
+                    .toList();
+              });
+            },
+          ),
+          Expanded(
+            child: FutureBuilder<List<Character>>(
+              future: _characterListFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (snapshot.hasData) {
+                  final characters = snapshot.data!;
+                  final charactersToShow = _filteredCharacters.isNotEmpty
+                      ? _filteredCharacters
+                      : characters;
+
+                  return ListView.separated(
+                    itemCount: charactersToShow.length,
+                    separatorBuilder: (context, index) => const Divider(),
+                    itemBuilder: (context, index) {
+                      final character = charactersToShow[index];
+                      return ListTile(
+                        title: Text(character.name),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  CharacterDetailScreen(character: character),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  );
+                } else {
+                  return const Center(child: Text('No data available'));
+                }
               },
-            );
-          } else {
-            return const Center(child: Text('No data available'));
-          }
-        },
+            ),
+          ),
+        ],
       ),
     );
   }
 }
-
-// void main() {
-//   runApp(MaterialApp(
-//       home: CharacterListScreen(
-//           characterService: CharacterService('http://api.duckduckgo.com/?'))));
-// }
