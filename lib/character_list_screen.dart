@@ -33,61 +33,90 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
       appBar: AppBar(
         title: const Text('Character List'),
       ),
-      body: Column(
-        children: [
-          CharacterSearchBar(
-            onTextChanged: (value) async {
-              final characters = await _characterListFuture;
-              setState(() {
-                _filteredCharacters = characters
-                    .where((character) => character.name
-                        .toLowerCase()
-                        .contains(value.toLowerCase()))
-                    .toList();
-              });
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth > 600) {
+            // On larger screens, show both list and details side by side
+            return Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: _buildListView(),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: CharacterDetailScreen(
+                    character: _filteredCharacters.isNotEmpty
+                        ? _filteredCharacters.first
+                        : Character(name: '', description: '', image: ''),
+                  ),
+                ),
+              ],
+            );
+          } else {
+            // On smaller screens, show only the list
+            return _buildListView();
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildListView() {
+    return Column(
+      children: [
+        CharacterSearchBar(
+          onTextChanged: (value) async {
+            final characters = await _characterListFuture;
+            setState(() {
+              _filteredCharacters = characters
+                  .where((character) => character.name
+                      .toLowerCase()
+                      .contains(value.toLowerCase()))
+                  .toList();
+            });
+          },
+        ),
+        Expanded(
+          child: FutureBuilder<List<Character>>(
+            future: _characterListFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (snapshot.hasData) {
+                final characters = snapshot.data!;
+                final charactersToShow = _filteredCharacters.isNotEmpty
+                    ? _filteredCharacters
+                    : characters;
+
+                return ListView.separated(
+                  itemCount: charactersToShow.length,
+                  separatorBuilder: (context, index) => const Divider(),
+                  itemBuilder: (context, index) {
+                    final character = charactersToShow[index];
+                    return ListTile(
+                      title: Text(character.name),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                CharacterDetailScreen(character: character),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              } else {
+                return const Center(child: Text('No data available'));
+              }
             },
           ),
-          Expanded(
-            child: FutureBuilder<List<Character>>(
-              future: _characterListFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (snapshot.hasData) {
-                  final characters = snapshot.data!;
-                  final charactersToShow = _filteredCharacters.isNotEmpty
-                      ? _filteredCharacters
-                      : characters;
-
-                  return ListView.separated(
-                    itemCount: charactersToShow.length,
-                    separatorBuilder: (context, index) => const Divider(),
-                    itemBuilder: (context, index) {
-                      final character = charactersToShow[index];
-                      return ListTile(
-                        title: Text(character.name),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  CharacterDetailScreen(character: character),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  );
-                } else {
-                  return const Center(child: Text('No data available'));
-                }
-              },
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
