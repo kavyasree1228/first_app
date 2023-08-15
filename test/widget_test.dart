@@ -5,26 +5,44 @@
 // // gestures. You can also use WidgetTester to find child widgets in the widget
 // // tree, read text, and verify that the values of widget properties are correct.
 
-// import 'package:flutter/material.dart';
-// import 'package:flutter_test/flutter_test.dart';
+import 'package:first_app/character.dart';
+import 'package:first_app/character_list_screen.dart';
+import 'package:first_app/character_service.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 
-// import 'package:first_app/main.dart';
+void main() {
+  testWidgets('CharacterListScreen displays correct title',
+      (WidgetTester tester) async {
+    // Build the widget
+    await tester.pumpWidget(
+      MaterialApp(
+        home: CharacterListScreen(
+          characterService: MockCharacterService(
+              'http://api.duckduckgo.com/?q=simpsons+characters&format=json'), // Replace with your character service
+          packageName: 'com.example.app',
+        ),
+      ),
+    );
 
-// void main() {
-//   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-//     // Build our app and trigger a frame.
-//     await tester.pumpWidget(const MyApp());
+    // Find the title widget
+    final titleFinder = find.text('Character List');
 
-//     // Verify that our counter starts at 0.
-//     expect(find.text('0'), findsOneWidget);
-//     expect(find.text('1'), findsNothing);
+    // Expect the title to be present
+    expect(titleFinder, findsOneWidget);
+  });
+}
 
-//     // Tap the '+' icon and trigger a frame.
-//     await tester.tap(find.byIcon(Icons.add));
-//     await tester.pump();
+// Mock character service for testing
+class MockCharacterService extends CharacterService {
+  MockCharacterService(super.baseUrl);
 
-//     // Verify that our counter has incremented.
-//     expect(find.text('0'), findsNothing);
-//     expect(find.text('1'), findsOneWidget);
-//   });
-// }
+  @override
+  Future<List<Character>> fetchCharacters() async {
+    // Return mock data for testing
+    return [
+      Character(name: 'Character 1', description: '', image: ''),
+      Character(name: 'Character 2', description: '', image: ''),
+    ];
+  }
+}
