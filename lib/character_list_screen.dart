@@ -6,7 +6,8 @@ import 'character_service.dart';
 class CharacterListScreen extends StatefulWidget {
   final CharacterService characterService;
 
-  const CharacterListScreen({required this.characterService});
+  const CharacterListScreen(
+      {required this.characterService, required String packageName});
 
   @override
   _CharacterListScreenState createState() => _CharacterListScreenState();
@@ -44,6 +45,8 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
               itemCount: characters.length,
               itemBuilder: (context, index) {
                 final character = characters[index];
+                // final extractedName = widget.characterService
+                //     .extractNameFromUrl(character.firstUrl);
                 return ListTile(
                   title: Text(character.name),
                   onTap: () {
