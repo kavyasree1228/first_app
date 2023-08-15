@@ -20,7 +20,7 @@ void main() {
         home: CharacterListScreen(
           characterService: MockCharacterService(
               'http://api.duckduckgo.com/?q=simpsons+characters&format=json'), // Replace with your character service
-          packageName: 'com.example.app',
+          packageName: 'com.sample.simpsonsviewer',
         ),
       ),
     );
