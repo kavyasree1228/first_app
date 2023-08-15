@@ -14,7 +14,7 @@ class CharacterService {
 
   String _extractImageUrl(String url) {
     if (url.isEmpty) {
-      return ''; // Empty URL
+      return 'https://picsum.photos/200/300'; // Empty URL
     } else if (url.startsWith('/')) {
       return 'https://duckduckgo.com$url'; // Complete URL
     } else {
