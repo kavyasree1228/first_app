@@ -30,7 +30,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Character Viewer'),
+        title: const Text('Character Viewer'),
       ),
       body: FutureBuilder<List<Character>>(
         future: _characterListFuture,
@@ -41,12 +41,11 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData) {
             final characters = snapshot.data!;
-            return ListView.builder(
+            return ListView.separated(
               itemCount: characters.length,
+              separatorBuilder: (context, index) => const Divider(),
               itemBuilder: (context, index) {
                 final character = characters[index];
-                // final extractedName = widget.characterService
-                //     .extractNameFromUrl(character.firstUrl);
                 return ListTile(
                   title: Text(character.name),
                   onTap: () {
@@ -62,7 +61,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
               },
             );
           } else {
-            return Center(child: Text('No data available'));
+            return const Center(child: Text('No data available'));
           }
         },
       ),

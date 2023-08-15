@@ -13,7 +13,7 @@ class CharacterDetailScreen extends StatelessWidget {
         title: Text(character.name),
       ),
       body: Padding(
-        padding: EdgeInsets.all(30.0), // Add padding around the content
+        padding: const EdgeInsets.all(30.0), // Add padding around the content
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -25,7 +25,7 @@ class CharacterDetailScreen extends StatelessWidget {
             SizedBox(height: 45.0),
             Text(
               character.description,
-              style: TextStyle(fontSize: 16.0),
+              style: const TextStyle(fontSize: 16.0),
             ),
           ],
         ),

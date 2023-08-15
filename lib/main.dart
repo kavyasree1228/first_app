@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'character_list_screen.dart';
 import 'character_service.dart';
 import 'package:flutter_config/flutter_config.dart';
+// ignore: library_prefixes
 import '../flavors/simpsons/simpsonsConfig.dart' as simpsonConfig;
 import '../flavors/the_wire/wireConfig.dart' as wireConfig;
 
@@ -9,7 +10,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterConfig.loadEnvVariables();
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -30,7 +31,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Flavor Selection'),
+        title: const Text('Flavor Selection'),
       ),
       body: Center(
         child: Column(
@@ -44,7 +45,7 @@ class HomeScreen extends StatelessWidget {
                   simpsonConfig.AppConfig.packageName,
                 );
               },
-              child: Text('Simpsons Flavor'),
+              child: const Text('Simpsons Flavor'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -54,7 +55,7 @@ class HomeScreen extends StatelessWidget {
                   wireConfig.AppConfig.packageName,
                 );
               },
-              child: Text('Wire Flavor'),
+              child: const Text('Wire Flavor'),
             ),
           ],
         ),
