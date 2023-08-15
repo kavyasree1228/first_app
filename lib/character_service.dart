@@ -6,6 +6,22 @@ class CharacterService {
   final String baseUrl;
 
   CharacterService(this.baseUrl);
+
+  String extractNameFromUrl(String url) {
+    List<String> urlParts = url.split('/');
+    return urlParts.last;
+  }
+
+  String _extractImageUrl(String url) {
+    if (url.isEmpty) {
+      return ''; // Empty URL
+    } else if (url.startsWith('/')) {
+      return 'https://duckduckgo.com$url'; // Complete URL
+    } else {
+      return url; // Already a complete URL
+    }
+  }
+
   Future<List<Character>> fetchCharacters() async {
     final response = await http.get(Uri.parse(baseUrl));
 
@@ -14,9 +30,10 @@ class CharacterService {
 
       final relatedTopics = jsonData['RelatedTopics'] as List;
       final characters = relatedTopics.map((topic) {
+        //  final name = extractNameFromUrl(topic['FirstURL']);
         return Character(
-          name: _stripHtmlTags(topic['Result']),
-          description: '', // You can set description as needed
+          name: extractNameFromUrl(topic['FirstURL']).replaceAll('_', ' '),
+          description: topic['Text'],
           image: _extractImageUrl(topic['Icon']['URL']),
         );
       }).toList();
@@ -25,16 +42,5 @@ class CharacterService {
     } else {
       throw Exception('Failed to load characters');
     }
-  }
-
-// Helper method to strip HTML tags from a string
-  String _stripHtmlTags(String htmlString) {
-    final regex = RegExp(r'<[^>]*>');
-    return htmlString.replaceAll(regex, '');
-  }
-
-// Helper method to extract the image URL from the API response
-  String _extractImageUrl(String url) {
-    return 'https://duckduckgo.com$url';
   }
 }
