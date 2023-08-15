@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'character_list_screen.dart';
 import 'character_service.dart';
-import 'character_detail_screen.dart';
 import 'package:flutter_config/flutter_config.dart';
 import '../flavors/simpsons/simpsonsConfig.dart' as simpsonConfig;
 import '../flavors/the_wire/wireConfig.dart' as wireConfig;
